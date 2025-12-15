@@ -1,0 +1,23 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+from .models import Message, Notification
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+@receiver(post_save, sender=Message)
+def create_notification_on_new_message(sender, instance, created, **kwargs):
+    """
+    When a Message is created, create a Notification for the receiver.
+    """
+    if not created:
+        return
+
+    if instance.sender_id == instance.receiver_id:
+        return
+
+    Notification.objects.create(
+        user=instance.receiver,
+        message=instance,
+    )
