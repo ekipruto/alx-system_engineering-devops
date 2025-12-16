@@ -8,10 +8,11 @@ def delete_user(request):
     return redirect('login')
 
 def threaded_conversation(request):
-    messages = Message.objects.filter(parent_message__isnull=True) \
+    messages = (Message.objects.filter(parent_message__isnull=True) \
+        .filter(sender=request.user, parent_message__isnull=True)
         .select_related('sender', 'receiver') \
         .prefetch_related('replies')
-
+    )
     return messages
 
 def get_thread(message):
