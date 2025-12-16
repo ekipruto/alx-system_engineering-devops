@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.views.decorators.cache import cache_page
+from django.http import JsonResponse
 from .models import Message
 
 @login_required
@@ -33,3 +35,9 @@ def get_thread(message):
         thread.append(reply)
         thread.extend(get_thread(reply))
     return thread
+
+
+@cache_page(60)
+def message_list(request):
+    messages = Message.objects.all().values('id', 'content', 'timestamp')
+    return JsonResponse(list(messages), safe=False)
