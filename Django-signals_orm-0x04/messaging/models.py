@@ -9,6 +9,14 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     edited=models.BooleanField(default=False)
+    edited_by = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        related_name='edited_messages',
+        # set to null to keep history even if user is deleted
+        on_delete=models.SET_NULL
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
