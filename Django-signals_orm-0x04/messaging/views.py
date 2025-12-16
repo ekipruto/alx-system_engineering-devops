@@ -7,9 +7,16 @@ def delete_user(request):
     request.user.delete()
     return redirect('login')
 
+from django.contrib.auth.decorators import login_required
+from .models import Message
+
 def inbox(request):
-    unread_messages = Message.unread.for_user(request.user)
+    unread_messages = (
+        Message.unread.unread_for_user(request.user)
+        .only('id', 'content', 'timestamp', 'sender')
+    )
     return unread_messages
+
 
 
 def threaded_conversation(request):
