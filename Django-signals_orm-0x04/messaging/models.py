@@ -2,8 +2,15 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 
+
 User = get_user_model()
 
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return self.filter(receiver=user, read=False).only(
+            'id', 'content', 'timestamp', 'sender'
+        )
+        
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
@@ -18,6 +25,8 @@ class Message(models.Model):
     edited = models.BooleanField(default=False)
     read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
+    objects=models.Manager()
+    unread=UnreadMessagesManager()
 
 
 
@@ -45,4 +54,5 @@ class MessageHistory(models.Model):
 
     def __str__(self):
         return f"Edit history for message {self.message_id}"
+
 
