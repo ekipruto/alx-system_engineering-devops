@@ -8,19 +8,17 @@ class Message(models.Model):
     sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
-    edited=models.BooleanField(default=False)
-    edited_by = models.ForeignKey(
-        User,
+    parent_message = models.ForeignKey(
+        'self',
         null=True,
         blank=True,
-        related_name='edited_messages',
-        # set to null to keep history even if user is deleted
-        on_delete=models.SET_NULL
+        related_name='replies',
+        on_delete=models.CASCADE
     )
+    edited = models.BooleanField(default=False)
+    read = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Message(from={self.sender}, to={self.receiver}, at={self.timestamp})"
 
 
 class Notification(models.Model):
